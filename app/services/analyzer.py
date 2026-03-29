@@ -213,8 +213,7 @@ class UserAnalyzer:
         summary = (
             f"{profile.handle}님은 {profile.tier_label}이며 "
             f"누적 해결 수는 {profile.solved_count}문제입니다. "
-            f"권장 연습 구간은 T{profile.recommended_tier_min}–T{profile.recommended_tier_max}입니다. "
-            f"취약 영역: {', '.join(focus[:3]) if focus[:3] else '특이 취약점 없음'}."
+            f"권장 연습 구간은 T{profile.recommended_tier_min}–T{profile.recommended_tier_max}입니다."
         )
 
         return AnalysisResult(

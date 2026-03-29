@@ -13,6 +13,7 @@ const state = {
   // 'login' | 'register-1' | 'register-2' | 'link' | 'dashboard'
   view:       'login',
   editHandle: false,
+  menuOpen:   false,
   registerFlow: {
     requestId:   null,
     emailMasked: null,
@@ -93,6 +94,10 @@ function esc(s) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function fmtTag(t) {
+  return esc(String(t).replace(/_/g, ' '));
 }
 
 function tierInfo(t) {
@@ -292,11 +297,11 @@ function tplLink() {
 
 /* ── Dashboard ────────────────────────────────────────────────────── */
 function tplDashboard() {
-  const { user, analysis, recs } = state;
+  const { analysis, recs } = state;
   const profile = analysis?.profile;
 
   return `
-    ${tplHeader()}
+    ${tplUserMenu()}
     <main class="dash-main">
       ${state.loading && !profile ? tplSkeletonHero() : ''}
       ${profile  ? tplHero(profile, analysis) : ''}
@@ -307,29 +312,26 @@ function tplDashboard() {
     </main>`;
 }
 
-function tplHeader() {
+function tplUserMenu() {
   const { user } = state;
   const handle = user?.boj_handle;
   return `
-    <header class="header">
-      <div class="header-inner">
-        <a href="/" class="header-brand">
-          <span class="mark">⚡</span>
-          <span>PS 추천기</span>
-        </a>
-        <div class="header-right">
-          <span class="header-username">${esc(user?.username || '')}</span>
-          ${handle
-            ? `<a href="https://solved.ac/profile/${encodeURIComponent(handle)}"
-                  target="_blank" rel="noopener" class="header-handle">@${esc(handle)}</a>`
-            : ''}
-          <button class="btn btn-ghost btn-sm" id="btn-edit-handle">
-            ${handle ? '핸들 변경' : '핸들 연동'}
-          </button>
-          <button class="btn btn-ghost btn-sm" id="btn-logout">로그아웃</button>
-        </div>
-      </div>
-    </header>`;
+    <div class="user-menu">
+      <button class="user-menu-btn" id="btn-user-menu">···</button>
+      ${state.menuOpen ? `
+        <div class="user-menu-drop">
+          <div class="user-menu-info">
+            <span class="user-menu-name">${esc(user?.username || '')}</span>
+            ${handle
+              ? `<a href="https://solved.ac/profile/${encodeURIComponent(handle)}"
+                    target="_blank" rel="noopener" class="user-menu-handle">@${esc(handle)}</a>`
+              : ''}
+          </div>
+          <div class="user-menu-divider"></div>
+          <button class="user-menu-item" id="btn-edit-handle">${handle ? '핸들 변경' : '핸들 연동'}</button>
+          <button class="user-menu-item user-menu-item-danger" id="btn-logout">로그아웃</button>
+        </div>` : ''}
+    </div>`;
 }
 
 function tplHero(p, analysis) {
@@ -338,7 +340,7 @@ function tplHero(p, analysis) {
   const dColor = d > 180 ? '#dc2626' : d > 60 ? '#d97706' : '#16a34a';
   return `
     <div class="hero-card">
-      <div class="hero-tier-badge" style="color:${color};background:${bg}">${label}</div>
+      <div class="hero-tier-badge" style="color:${color}">${label}</div>
       <div class="hero-stats">
         <div class="stat">
           <div class="stat-val">${p.solved_count.toLocaleString()}</div>
@@ -391,6 +393,7 @@ function tplHandleEdit() {
 function tplAnalysis(analysis) {
   const p = analysis.profile;
   const focus  = analysis.focus_recommendation?.slice(0, 6) || [];
+  const weak   = (p.weak_tags || []).filter(t => !focus.includes(t)).slice(0, 5);
   const unseen = p.unseen_tags?.slice(0, 5) || [];
 
   return `
@@ -402,12 +405,17 @@ function tplAnalysis(analysis) {
       ${focus.length ? `
         <div class="tag-row">
           <span class="tag-row-label">집중 추천</span>
-          ${focus.map(t => `<span class="tag tag-focus">${esc(t)}</span>`).join('')}
+          ${focus.map(t => `<span class="tag tag-focus">${fmtTag(t)}</span>`).join('')}
+        </div>` : ''}
+      ${weak.length ? `
+        <div class="tag-row">
+          <span class="tag-row-label">취약 태그</span>
+          ${weak.map(t => `<span class="tag tag-weak">${fmtTag(t)}</span>`).join('')}
         </div>` : ''}
       ${unseen.length ? `
         <div class="tag-row">
           <span class="tag-row-label">미경험 태그</span>
-          ${unseen.map(t => `<span class="tag tag-unseen">${esc(t)}</span>`).join('')}
+          ${unseen.map(t => `<span class="tag tag-unseen">${fmtTag(t)}</span>`).join('')}
         </div>` : ''}
     </div>`;
 }
@@ -439,12 +447,12 @@ function tplRecCard(rec) {
       <div class="rec-rank">#${rank}</div>
       <div class="rec-body">
         <div class="rec-head">
-          <span class="tier-badge" style="color:${color};background:${bg}">${label}</span>
+          <span class="tier-badge" style="color:${color}">${label}</span>
           <a href="${esc(p.boj_url)}" target="_blank" rel="noopener" class="rec-title">${esc(p.title)}</a>
           <span class="rec-id">BOJ ${p.problem_id}</span>
         </div>
         <div class="rec-tags">
-          ${p.tags.slice(0, 4).map(t => `<span class="tag">${esc(t)}</span>`).join('')}
+          ${p.tags.slice(0, 4).map(t => `<span class="tag">${fmtTag(t)}</span>`).join('')}
         </div>
         <p class="rec-reason">${esc(reason)}</p>
         <p class="rec-outcome">${esc(expected_outcome)}</p>
@@ -563,9 +571,28 @@ function bindLink() {
 }
 
 function bindDashboard() {
+  document.getElementById('btn-user-menu')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    state.menuOpen = !state.menuOpen;
+    render();
+  });
+
+  if (state.menuOpen) {
+    setTimeout(() => {
+      document.addEventListener('click', function closeMenu(e) {
+        if (!e.target.closest('.user-menu')) {
+          state.menuOpen = false;
+          render();
+        }
+        document.removeEventListener('click', closeMenu);
+      });
+    }, 0);
+  }
+
   document.getElementById('btn-logout')?.addEventListener('click', logout);
 
   document.getElementById('btn-edit-handle')?.addEventListener('click', () => {
+    state.menuOpen = false;
     state.editHandle = !state.editHandle;
     state.error = null;
     render();
@@ -706,7 +733,7 @@ function logout() {
   Object.assign(state, {
     token: null, user: null, analysis: null,
     recs: null, error: null, editHandle: false,
-    view: 'login',
+    menuOpen: false, view: 'login',
     registerFlow: { requestId: null, emailMasked: null, ttlMin: null },
   });
   localStorage.removeItem('ps_token');
