@@ -24,3 +24,7 @@ export function syncData() {
 export function updateSettings(settings: { theme?: string; includeForeign?: boolean }) {
   return client.put<User>('/api/users/me/settings', settings)
 }
+
+export function deleteAccount(password: string) {
+  return client.delete('/api/users/me', { data: { password } })
+}

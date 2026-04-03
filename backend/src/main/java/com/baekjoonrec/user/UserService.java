@@ -12,6 +12,7 @@ import com.baekjoonrec.user.dto.UpdateSettingsRequest;
 import com.baekjoonrec.user.dto.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class UserService {
     private final UserAnalysisRepository userAnalysisRepository;
     private final UserTagStatRepository userTagStatRepository;
     private final RecommendationService recommendationService;
+    private final PasswordEncoder passwordEncoder;
 
     public UserInfoResponse getCurrentUser(Long userId) {
         User user = userRepository.findById(userId)
@@ -64,6 +66,18 @@ public class UserService {
         }
         userRepository.save(user);
         return toResponse(user);
+    }
+
+    @Transactional
+    public void deleteAccount(Long userId, String password) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."));
+
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD", "비밀번호가 올바르지 않습니다.");
+        }
+
+        userRepository.delete(user);
     }
 
     private UserInfoResponse toResponse(User user) {

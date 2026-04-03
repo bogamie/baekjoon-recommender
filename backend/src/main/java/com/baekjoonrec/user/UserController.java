@@ -2,6 +2,7 @@ package com.baekjoonrec.user;
 
 import com.baekjoonrec.auth.User;
 import com.baekjoonrec.solvedac.SolvedacSyncService;
+import com.baekjoonrec.user.dto.DeleteAccountRequest;
 import com.baekjoonrec.user.dto.UpdateHandleRequest;
 import com.baekjoonrec.user.dto.UpdateSettingsRequest;
 import com.baekjoonrec.user.dto.UserInfoResponse;
@@ -46,5 +47,13 @@ public class UserController {
     public ResponseEntity<Map<String, String>> sync(@AuthenticationPrincipal User user) {
         solvedacSyncService.syncUserSolvedProblems(user.getId());
         return ResponseEntity.ok(Map.of("message", "Sync completed"));
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Map<String, String>> deleteAccount(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody DeleteAccountRequest request) {
+        userService.deleteAccount(user.getId(), request.getPassword());
+        return ResponseEntity.ok(Map.of("message", "Account deleted successfully"));
     }
 }

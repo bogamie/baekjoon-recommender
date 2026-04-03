@@ -39,3 +39,11 @@ export function login(email: string, password: string) {
 export function refresh(refreshToken: string) {
   return client.post<LoginResponse>('/api/auth/refresh', { refreshToken })
 }
+
+export function forgotPassword(email: string) {
+  return client.post('/api/auth/forgot-password', { email })
+}
+
+export function resetPassword(email: string, code: string, newPassword: string) {
+  return client.post('/api/auth/reset-password', { email, code, newPassword })
+}

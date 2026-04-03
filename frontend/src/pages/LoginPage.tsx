@@ -1,18 +1,21 @@
 import axios from 'axios'
 import { FormEvent, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { login } from '../api/auth'
 import { useAuth } from '../contexts/AuthContext'
 import styles from './LoginPage.module.css'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login: authLogin } = useAuth()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const resetSuccess = (location.state as { resetSuccess?: boolean })?.resetSuccess
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -64,6 +67,7 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {resetSuccess && <p className={styles.success}>비밀번호가 재설정되었습니다. 새 비밀번호로 로그인해주세요.</p>}
           {error && <p className={styles.error}>{error}</p>}
 
           <button
@@ -74,6 +78,12 @@ export default function LoginPage() {
             {loading ? '로그인 중...' : '로그인'}
           </button>
         </form>
+
+        <p className={styles.forgotLink}>
+          <Link className={styles.link} to="/forgot-password">
+            비밀번호를 잊으셨나요?
+          </Link>
+        </p>
 
         <p className={styles.footer}>
           계정이 없으신가요?

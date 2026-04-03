@@ -23,6 +23,38 @@ public class AuthService {
     private final JwtService jwtService;
     private final MailService mailService;
 
+    @Transactional
+    public void forgotPassword(SendCodeRequest request) {
+        userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "USER_NOT_FOUND", "등록되지 않은 이메일입니다."));
+        sendCode(request);
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        EmailVerification verification = emailVerificationRepository
+                .findTopByEmailOrderByCreatedAtDesc(request.getEmail())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "CODE_NOT_FOUND", "인증 코드를 찾을 수 없습니다."));
+
+        if (verification.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "CODE_EXPIRED", "인증 코드가 만료되었습니다.");
+        }
+        if (!verification.getCode().equals(request.getCode())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_CODE", "인증 코드가 올바르지 않습니다.");
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."));
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        verification.setVerified(true);
+        emailVerificationRepository.save(verification);
+
+        refreshTokenRepository.deleteByUserId(user.getId());
+    }
+
     public AvailabilityResponse checkEmail(CheckEmailRequest request) {
         boolean exists = userRepository.existsByEmail(request.getEmail());
         return new AvailabilityResponse(!exists);

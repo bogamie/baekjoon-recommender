@@ -69,7 +69,7 @@
   width: 100%;
   padding: 12px;
   background-color: var(--color-text);
-  color: #FFFFFF;
+  color: var(--color-bg);
   border: none;
   border-radius: 2px;
   font-size: 14px;
@@ -87,8 +87,21 @@
   cursor: not-allowed;
 }
 
+.success {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--color-green);
+  min-height: 18px;
+}
+
+.forgotLink {
+  margin-top: 16px;
+  font-size: 13px;
+  text-align: center;
+}
+
 .footer {
-  margin-top: 24px;
+  margin-top: 12px;
   font-size: 13px;
   color: var(--color-muted);
   text-align: center;

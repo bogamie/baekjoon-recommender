@@ -51,7 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    const theme = user?.theme || 'light'
+    const theme = user?.theme || localStorage.getItem('theme') || 'light'
+    if (user?.theme) {
+      localStorage.setItem('theme', user.theme)
+    }
     document.documentElement.setAttribute('data-theme', theme)
   }, [user?.theme])
 

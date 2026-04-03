@@ -217,3 +217,89 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Danger section */
+.dangerSection {
+  padding-top: 32px;
+}
+
+.dangerBtn {
+  padding: 8px 16px;
+  background: none;
+  color: #DC2626;
+  border: 1px solid #DC2626;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.dangerBtn:hover {
+  background-color: #DC2626;
+  color: #FFFFFF;
+}
+
+.deleteConfirm {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.deleteWarning {
+  font-size: 13px;
+  color: #DC2626;
+  margin-bottom: 12px;
+}
+
+.deleteError {
+  font-size: 13px;
+  color: #DC2626;
+  margin-top: 8px;
+}
+
+.deleteActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.cancelBtn {
+  padding: 8px 16px;
+  background: none;
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.cancelBtn:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-input);
+}
+
+.confirmDeleteBtn {
+  padding: 8px 16px;
+  background-color: #DC2626;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.confirmDeleteBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.confirmDeleteBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
