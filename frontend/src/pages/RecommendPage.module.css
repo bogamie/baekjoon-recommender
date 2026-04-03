@@ -1,0 +1,247 @@
+.page {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+/* Nav */
+.nav {
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.navInner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.brand:hover {
+  opacity: 0.7;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navUsername {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--color-muted);
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.backBtn:hover {
+  color: var(--color-text);
+}
+
+/* Content */
+.content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.refreshBtn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--color-muted);
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.refreshBtn:hover:not(:disabled) {
+  color: var(--color-text);
+}
+
+.refreshBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Profile summary */
+.profileSection {
+  margin-bottom: 32px;
+  font-size: 13px;
+  color: var(--color-muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Card list */
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Card */
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 14px 20px;
+  background-color: var(--color-surface);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.slotLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 10px;
+  border-radius: 999px;
+  color: #FFFFFF;
+}
+
+.slotREVIEW { background-color: #6B7280; }
+.slotGROWTH { background-color: #3B82F6; }
+.slotCHALLENGE { background-color: #EF4444; }
+.slotENTRY { background-color: #10B981; }
+.slotEXPLORE { background-color: #8B5CF6; }
+
+.slotLabelText {
+  font-size: 12px;
+}
+
+.levelBadge {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.problemTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
+
+.problemId {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+.tagList {
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+
+.reason {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-bottom: 16px;
+}
+
+.cardActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.skipBtn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--color-muted);
+  padding: 4px 0;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.skipBtn:hover {
+  color: var(--color-text);
+}
+
+.solveBtn {
+  padding: 4px 14px;
+  background-color: var(--color-accent);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.solveBtn:hover {
+  opacity: 0.85;
+}
+
+/* States */
+.stateMsg {
+  padding: 48px 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.emptyMsg {
+  padding: 48px 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .content {
+    padding: 32px 16px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

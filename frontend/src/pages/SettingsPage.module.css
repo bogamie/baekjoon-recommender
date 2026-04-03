@@ -1,0 +1,219 @@
+.page {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+/* Nav */
+.nav {
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.navInner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.brand:hover {
+  opacity: 0.7;
+}
+
+/* Content */
+.content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 36px;
+}
+
+/* Settings sections */
+.section {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.sectionDesc {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-bottom: 16px;
+}
+
+/* Handle input */
+.handleRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.handleInput {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border-input);
+  outline: none;
+  padding: 8px 0;
+  font-size: 15px;
+  color: var(--color-text);
+  width: 240px;
+  transition: border-color 0.15s;
+}
+
+.handleInput::placeholder {
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.handleInput:focus {
+  border-bottom-color: var(--color-text);
+}
+
+.saveBtn {
+  padding: 8px 16px;
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  border: none;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.saveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Toggle */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background-color: var(--color-border);
+  border-radius: 11px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.toggle.active {
+  background-color: var(--color-accent);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background-color: #FFFFFF;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle.active .toggleKnob {
+  transform: translateX(18px);
+}
+
+.toggleLabel {
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+/* Theme selector */
+.themeOptions {
+  display: flex;
+  gap: 8px;
+}
+
+.themeBtn {
+  padding: 8px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: none;
+  font-size: 13px;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.themeBtn:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+.themeBtn.selected {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background-color: var(--color-hover-bg);
+}
+
+/* Messages */
+.successMsg {
+  font-size: 13px;
+  color: var(--color-green);
+  margin-top: 8px;
+}
+
+.errorMsg {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-top: 8px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-text);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
