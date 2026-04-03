@@ -1,3 +1,6 @@
+# === Claude Code ===
+CLAUDE.md
+
 # === IDE ===
 .idea/
 *.iml
@@ -13,6 +16,7 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+!.env.prod.example
 
 # === Backend (Gradle / Spring Boot) ===
 backend/.gradle/
