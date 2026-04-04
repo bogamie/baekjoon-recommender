@@ -11,7 +11,8 @@ COPY --from=build /app/build/libs/*.jar app.jar
 USER appuser
 EXPOSE 8080
 ENTRYPOINT ["java", \
-  "-XX:MaxRAMPercentage=75.0", \
+  "-Xmx256m", \
+  "-Xms128m", \
   "-XX:+HeapDumpOnOutOfMemoryError", \
   "-XX:HeapDumpPath=/tmp/heapdump.hprof", \
   "-jar", "app.jar"]
