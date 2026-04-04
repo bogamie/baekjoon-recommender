@@ -66,6 +66,6 @@ jobs:
           key: ${{ secrets.GCE_SSH_KEY }}
           script: |
             cd ~/baekjoon-recommender
-            docker compose -f docker-compose.prod.yml pull backend
-            docker compose -f docker-compose.prod.yml up -d backend
+            docker compose -f docker-compose.prod.yml --env-file .env.prod pull backend
+            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
             docker image prune -f
