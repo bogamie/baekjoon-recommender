@@ -38,6 +38,9 @@ public class User {
     @Column(name = "include_foreign")
     private Boolean includeForeign;
 
+    @Column(name = "last_synced_at")
+    private LocalDateTime lastSyncedAt;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

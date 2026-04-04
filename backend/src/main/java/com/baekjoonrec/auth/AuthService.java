@@ -9,12 +9,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final UserRepository userRepository;
     private final EmailVerificationRepository emailVerificationRepository;
@@ -33,7 +35,7 @@ public class AuthService {
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
         EmailVerification verification = emailVerificationRepository
-                .findTopByEmailOrderByCreatedAtDesc(request.getEmail())
+                .findTopByEmailAndVerifiedFalseOrderByCreatedAtDesc(request.getEmail())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "CODE_NOT_FOUND", "인증 코드를 찾을 수 없습니다."));
 
         if (verification.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -67,7 +69,7 @@ public class AuthService {
 
     @Transactional
     public void sendCode(SendCodeRequest request) {
-        String code = String.format("%06d", new Random().nextInt(999999));
+        String code = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
         EmailVerification verification = EmailVerification.builder()
                 .email(request.getEmail())
                 .code(code)
@@ -81,7 +83,7 @@ public class AuthService {
     @Transactional
     public void verifyCode(VerifyCodeRequest request) {
         EmailVerification verification = emailVerificationRepository
-                .findTopByEmailOrderByCreatedAtDesc(request.getEmail())
+                .findTopByEmailAndVerifiedFalseOrderByCreatedAtDesc(request.getEmail())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "CODE_NOT_FOUND", "No verification code found for this email"));
 
         if (verification.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -152,6 +154,12 @@ public class AuthService {
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
         return new AccessTokenResponse(accessToken);
+    }
+
+    @Transactional
+    public void logout(RefreshRequest request) {
+        refreshTokenRepository.findByToken(request.getRefreshToken())
+                .ifPresent(token -> refreshTokenRepository.delete(token));
     }
 
     private TokenResponse generateTokens(User user) {

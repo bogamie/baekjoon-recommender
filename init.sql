@@ -10,6 +10,7 @@ CREATE TABLE users (
     solvedac_handle VARCHAR(50),
     theme VARCHAR(10) DEFAULT 'light',
     include_foreign BOOLEAN DEFAULT TRUE,
+    last_synced_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );

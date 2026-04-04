@@ -6,6 +6,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react'
+import client from '../api/client'
 import { getMe, User } from '../api/user'
 
 interface AuthContextValue {
@@ -45,6 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(() => {
+    const refreshToken = localStorage.getItem('refreshToken')
+    if (refreshToken) {
+      client.post('/api/auth/logout', { refreshToken }).catch(() => {})
+    }
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     setUser(null)

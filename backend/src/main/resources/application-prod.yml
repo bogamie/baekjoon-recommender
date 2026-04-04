@@ -1,4 +1,19 @@
+server:
+  shutdown: graceful
+  tomcat:
+    max-threads: 50
+    accept-count: 100
+
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  datasource:
+    hikari:
+      maximum-pool-size: 15
+      minimum-idle: 5
+      connection-timeout: 5000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
   mail:
     username: ${MAIL_USERNAME}
     password: ${MAIL_APP_PASSWORD}
@@ -9,6 +24,18 @@ spring:
           starttls:
             enable: true
             required: true
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 
 app:
   mail:
