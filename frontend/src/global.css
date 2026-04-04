@@ -1,0 +1,74 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-bg: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-text: #1A1A1A;
+  --color-muted: #6B7280;
+  --color-border: #E5E7EB;
+  --color-border-input: #D1D5DB;
+  --color-accent: #2563EB;
+  --color-hover-bg: #F9FAFB;
+  --color-green: #059669;
+
+  --font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --max-width: 900px;
+}
+
+[data-theme="dark"] {
+  --color-bg: #111111;
+  --color-surface: #1A1A1A;
+  --color-text: #E5E5E5;
+  --color-muted: #9CA3AF;
+  --color-border: #2D2D2D;
+  --color-border-input: #3D3D3D;
+  --color-accent: #3B82F6;
+  --color-hover-bg: #222222;
+  --color-green: #34D399;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-family);
+  cursor: pointer;
+}
+
+input {
+  font-family: var(--font-family);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-bg) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}

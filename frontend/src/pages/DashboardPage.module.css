@@ -1,0 +1,384 @@
+.page {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+/* Nav */
+.nav {
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.navInner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navUsername {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.logoutBtn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--color-muted);
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.logoutBtn:hover {
+  color: var(--color-text);
+}
+
+/* Content */
+.content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+/* Solvedac link prompt */
+.linkPrompt {
+  padding: 32px 0;
+}
+
+.linkPromptText {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin-bottom: 20px;
+}
+
+.linkRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.linkInput {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border-input);
+  outline: none;
+  padding: 8px 0;
+  font-size: 15px;
+  color: var(--color-text);
+  width: 240px;
+  transition: border-color 0.15s;
+}
+
+.linkInput::placeholder {
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.linkInput:focus {
+  border-bottom-color: var(--color-text);
+}
+
+.linkBtn {
+  padding: 8px 16px;
+  background-color: var(--color-accent);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.linkBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.linkBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Summary */
+.summarySection {
+  margin-bottom: 48px;
+}
+
+.summaryLine {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 10px;
+}
+
+.summaryMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.activityBadge {
+  display: inline-block;
+  padding: 2px 10px;
+  background-color: var(--color-hover-bg);
+  color: var(--color-text);
+  font-size: 12px;
+  border-radius: 999px;
+}
+
+.syncBtn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--color-muted);
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.syncBtn:hover:not(:disabled) {
+  color: var(--color-text);
+}
+
+.syncBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Recommendations */
+.recSection {
+  margin-bottom: 48px;
+}
+
+.recHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.recTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.recCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recCard {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 14px 20px;
+  background-color: var(--color-surface);
+}
+
+.recCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.slotLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 10px;
+  border-radius: 999px;
+  color: #FFFFFF;
+}
+
+.recLevel {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.recProblemTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.recProblemId {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+.recTags {
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-bottom: 6px;
+}
+
+.recReason {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+
+.recActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.recSkipBtn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--color-muted);
+  padding: 4px 0;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.recSkipBtn:hover {
+  color: var(--color-text);
+}
+
+.recSolveBtn {
+  padding: 4px 14px;
+  background-color: var(--color-accent);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.recSolveBtn:hover {
+  opacity: 0.85;
+}
+
+.recLoading {
+  font-size: 13px;
+  color: var(--color-muted);
+  padding: 16px 0;
+}
+
+/* Tag stats table */
+.tableSection {
+  overflow-x: auto;
+}
+
+.tableSection .recTitle {
+  margin-bottom: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.table th:hover {
+  color: var(--color-text);
+}
+
+.table th:first-child {
+  padding-left: 0;
+}
+
+.table td {
+  padding: 12px 12px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+  color: var(--color-text);
+}
+
+.table td:first-child {
+  padding-left: 0;
+}
+
+.table tbody tr:hover td {
+  background-color: var(--color-hover-bg);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.dormantRow td {
+  color: var(--color-muted);
+}
+
+.sortArrow {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 10px;
+}
+
+/* Tier dot */
+.tierCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tierDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Proficiency badge */
+.profBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: var(--color-hover-bg);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+/* Loading/empty states */
+.stateMsg {
+  padding: 48px 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.errorMsg {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-top: 8px;
+}
