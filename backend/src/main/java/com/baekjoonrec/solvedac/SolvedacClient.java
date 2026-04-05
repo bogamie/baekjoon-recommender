@@ -1,13 +1,17 @@
 package com.baekjoonrec.solvedac;
 
+import com.baekjoonrec.solvedac.dto.SolvedacHistoryEntry;
 import com.baekjoonrec.solvedac.dto.SolvedacProblemResponse;
 import com.baekjoonrec.solvedac.dto.SolvedacSearchResponse;
 import com.baekjoonrec.solvedac.dto.SolvedacUserResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -56,6 +60,16 @@ public class SolvedacClient {
                     .uri("/problem/show?problemId={id}", problemId)
                     .retrieve()
                     .body(SolvedacProblemResponse.class);
+        });
+    }
+
+    public List<SolvedacHistoryEntry> getUserHistory(String handle) {
+        return executeWithRetry(() -> {
+            rateLimit();
+            return restClient.get()
+                    .uri("/user/history?handle={handle}&topic=solvedCount", handle)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<SolvedacHistoryEntry>>() {});
         });
     }
 

@@ -49,6 +49,12 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "Sync completed"));
     }
 
+    @PostMapping("/me/full-resync")
+    public ResponseEntity<Map<String, String>> fullResync(@AuthenticationPrincipal User user) {
+        solvedacSyncService.fullResync(user.getId());
+        return ResponseEntity.ok(Map.of("message", "Full resync completed"));
+    }
+
     @DeleteMapping("/me")
     public ResponseEntity<Map<String, String>> deleteAccount(
             @AuthenticationPrincipal User user,

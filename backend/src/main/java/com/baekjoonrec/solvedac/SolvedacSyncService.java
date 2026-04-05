@@ -4,6 +4,7 @@ import com.baekjoonrec.analysis.AnalysisService;
 import com.baekjoonrec.auth.User;
 import com.baekjoonrec.auth.UserRepository;
 import com.baekjoonrec.common.ApiException;
+import com.baekjoonrec.solvedac.dto.SolvedacHistoryEntry;
 import com.baekjoonrec.solvedac.dto.SolvedacSearchResponse;
 import com.baekjoonrec.solvedac.dto.SolvedacSearchResponse.SolvedacProblemItem;
 import com.baekjoonrec.solvedac.dto.SolvedacUserResponse;
@@ -23,6 +24,7 @@ public class SolvedacSyncService {
 
     private final SolvedacClient solvedacClient;
     private final UserRepository userRepository;
+    private final com.baekjoonrec.problem.UserSolvedRepository userSolvedRepository;
     private final SolvedacPersistenceService persistenceService;
     private final AnalysisService analysisService;
 
@@ -32,6 +34,28 @@ public class SolvedacSyncService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "User not found"));
         user.setLastSyncedAt(null);
         userRepository.save(user);
+    }
+
+    /**
+     * Full resync: deletes existing UserSolved records and re-fetches with accurate timestamps.
+     * Use this to fix users whose solvedAt was incorrectly set to sync time.
+     */
+    @Transactional
+    public void fullResync(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "User not found"));
+
+        if (user.getSolvedacHandle() == null || user.getSolvedacHandle().isBlank()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "NO_HANDLE", "solved.ac handle not set");
+        }
+
+        log.info("Starting full resync for user {} — deleting existing records", userId);
+        userSolvedRepository.deleteByUserId(userId);
+
+        user.setLastSyncedAt(null);
+        userRepository.save(user);
+
+        syncUserSolvedProblems(userId);
     }
 
     public SolvedacUserResponse getUserInfo(String handle) {
@@ -71,8 +95,16 @@ public class SolvedacSyncService {
             page++;
         }
 
+        // Phase 1.5: Fetch solve history for accurate timestamps
+        List<SolvedacHistoryEntry> history = List.of();
+        try {
+            history = solvedacClient.getUserHistory(handle);
+        } catch (Exception e) {
+            log.warn("Failed to fetch history for {}, falling back to current time", handle, e);
+        }
+
         // Phase 2: Save to DB in a transaction (via separate bean for proxy)
-        persistenceService.saveFetchedData(userId, fetchedItems);
+        persistenceService.saveFetchedData(userId, fetchedItems, history);
 
         // Phase 3: Update last sync time
         user.setLastSyncedAt(LocalDateTime.now());
