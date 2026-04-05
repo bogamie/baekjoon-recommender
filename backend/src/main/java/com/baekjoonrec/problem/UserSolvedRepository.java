@@ -14,6 +14,6 @@ public interface UserSolvedRepository extends JpaRepository<UserSolved, UserSolv
     @org.springframework.data.jpa.repository.Query("SELECT us.problemId FROM UserSolved us WHERE us.userId = :userId")
     List<Integer> findProblemIdsByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
 
-    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT us.solvedAt) FROM UserSolved us WHERE us.userId = :userId")
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT CAST(us.solvedAt AS DATE)) FROM UserSolved us WHERE us.userId = :userId")
     long countDistinctSolvedAtByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
 }

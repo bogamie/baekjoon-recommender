@@ -129,13 +129,14 @@ public class SolvedacSyncService {
     }
 
     /**
-     * Detects if a user's solved timestamps are corrupted (all identical),
-     * which happens when history fetch failed during first sync.
+     * Detects if a user's solved timestamps are corrupted (most share the same date),
+     * which happens when history fetch failed or was incomplete during first sync.
      */
     private boolean hasCorruptedTimestamps(Long userId) {
-        long distinctCount = userSolvedRepository.countDistinctSolvedAtByUserId(userId);
+        long distinctDates = userSolvedRepository.countDistinctSolvedAtByUserId(userId);
         long totalCount = userSolvedRepository.countByUserId(userId);
-        // If 10+ problems all share the same timestamp, it's almost certainly corrupted
-        return totalCount >= 10 && distinctCount == 1;
+        // If 10+ problems exist but distinct dates cover less than 5% of total, timestamps are corrupted
+        // Normal users solve problems across many different dates
+        return totalCount >= 10 && distinctDates <= Math.max(1, totalCount / 20);
     }
 }
