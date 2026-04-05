@@ -25,6 +25,11 @@ public class SolvedacPersistenceService {
     private final com.baekjoonrec.recommend.RecommendationService recommendationService;
 
     @Transactional
+    public void deleteUserSolvedData(Long userId) {
+        userSolvedRepository.deleteByUserId(userId);
+    }
+
+    @Transactional
     public void saveFetchedData(Long userId, List<SolvedacProblemItem> items,
                                 List<SolvedacHistoryEntry> history) {
         List<Integer> solvedProblemIds = new ArrayList<>();

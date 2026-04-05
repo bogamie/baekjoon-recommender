@@ -83,7 +83,7 @@ public class SolvedacSyncService {
         // Detect corrupted timestamps (all same value) and auto-trigger full resync
         if (userSolvedRepository.existsByUserId(userId) && hasCorruptedTimestamps(userId)) {
             log.info("Detected corrupted timestamps for user {}, triggering full resync", userId);
-            userSolvedRepository.deleteByUserId(userId);
+            persistenceService.deleteUserSolvedData(userId);
             user.setLastSyncedAt(null);
             userRepository.save(user);
         }
