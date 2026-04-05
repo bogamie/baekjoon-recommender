@@ -70,6 +70,7 @@ jobs:
           username: ${{ secrets.GCE_USERNAME }}
           key: ${{ secrets.GCE_SSH_KEY }}
           script: |
+            set -e
             cd ~/baekjoon-recommender
             git pull origin main
             docker compose -f docker-compose.prod.yml --env-file .env.prod pull backend
@@ -83,6 +84,8 @@ jobs:
           username: ${{ secrets.GCE_USERNAME }}
           key: ${{ secrets.GCE_SSH_KEY }}
           script: |
+            set -e
+            cd ~/baekjoon-recommender
             CONTAINER=$(docker compose -f docker-compose.prod.yml ps -q backend)
             for i in $(seq 1 10); do
               sleep 15
