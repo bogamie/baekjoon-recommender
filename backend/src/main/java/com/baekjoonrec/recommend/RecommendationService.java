@@ -420,6 +420,8 @@ public class RecommendationService {
         RecommendationSlot exploreSlot = pickExploreProblem(tagStats, userTier, usedProblems, usedTags, skippedIds, includeForeign);
         if (exploreSlot != null) {
             slots.add(exploreSlot);
+            usedProblems.add(exploreSlot.getProblem().getId());
+            usedTags.add(exploreSlot.getReason().getCategory());
         }
 
         // Fill remaining slots if we don't have 5
@@ -458,6 +460,8 @@ public class RecommendationService {
         RecommendationSlot exploreSlot = pickExploreProblem(tagStats, userTier, usedProblems, usedTags, skippedIds, includeForeign);
         if (exploreSlot != null) {
             slots.add(exploreSlot);
+            usedProblems.add(exploreSlot.getProblem().getId());
+            usedTags.add(exploreSlot.getReason().getCategory());
         }
 
         fillRemainingSlots(slots, scores, userTier, usedProblems, usedTags, skippedIds, 5, includeForeign);
@@ -511,6 +515,8 @@ public class RecommendationService {
         RecommendationSlot exploreSlot = pickExploreProblem(tagStats, userTier, usedProblems, usedTags, skippedIds, includeForeign);
         if (exploreSlot != null) {
             slots.add(exploreSlot);
+            usedProblems.add(exploreSlot.getProblem().getId());
+            usedTags.add(exploreSlot.getReason().getCategory());
         }
 
         fillRemainingSlots(slots, scores, userTier, usedProblems, usedTags, skippedIds, 5, includeForeign);
