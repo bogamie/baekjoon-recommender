@@ -26,6 +26,15 @@ public class UserAnalysis {
     @Column(name = "active_days_90")
     private Integer activeDays90;
 
+    @Column(name = "previous_gap_days")
+    private Integer previousGapDays;
+
+    @Column(name = "active_days_in_block")
+    private Integer activeDaysInBlock;
+
+    @Column(name = "returned_at")
+    private LocalDateTime returnedAt;
+
     @Column(name = "total_solved")
     private Integer totalSolved;
 

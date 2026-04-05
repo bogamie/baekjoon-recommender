@@ -111,8 +111,10 @@ public class RecommendationService {
 
         // Allocate slots based on user status
         List<RecommendationSlot> slots;
-        if ("RETURNING_EARLY".equals(globalStatus) || "RETURNING_MID".equals(globalStatus)) {
-            slots = allocateReturningSlots(scores, tagStats, userTier, hardExclude, skippedIds, includeForeign);
+        if ("RETURNING_EARLY".equals(globalStatus)) {
+            slots = allocateReturningEarlySlots(scores, tagStats, userTier, hardExclude, skippedIds, includeForeign);
+        } else if ("RETURNING_MID".equals(globalStatus)) {
+            slots = allocateReturningMidSlots(scores, tagStats, userTier, hardExclude, skippedIds, includeForeign);
         } else {
             slots = allocateActiveSlots(scores, tagStats, userTier, hardExclude, skippedIds, includeForeign);
         }
@@ -286,7 +288,7 @@ public class RecommendationService {
 
             // Activity status bonus
             if (stat.getIsDormant() != null && stat.getIsDormant()) {
-                if ("RETURNING_EARLY".equals(globalStatus)) score += 15;
+                if ("RETURNING_EARLY".equals(globalStatus)) score += 20;
                 else if ("RETURNING_MID".equals(globalStatus)) score += 10;
             }
 
@@ -426,9 +428,9 @@ public class RecommendationService {
         return slots;
     }
 
-    // ── Slot Allocation: Returning User ──
+    // ── Slot Allocation: Returning Early (4 REVIEW + 1 EXPLORE) ──
 
-    private List<RecommendationSlot> allocateReturningSlots(
+    private List<RecommendationSlot> allocateReturningEarlySlots(
             List<CategoryScore> scores, List<UserTagStat> tagStats,
             int userTier, Set<Integer> hardExclude, Set<Integer> skippedIds, boolean includeForeign) {
 
@@ -436,14 +438,14 @@ public class RecommendationService {
         Set<String> usedTags = new HashSet<>();
         Set<Integer> usedProblems = new HashSet<>(hardExclude);
 
-        // Review 3: RETURNING (dormant) categories, easy difficulty
+        // Review 4: dormant categories, easy difficulty [avg-4, avg-1]
         List<CategoryScore> dormant = scores.stream()
                 .filter(s -> s.stat().getIsDormant() != null && s.stat().getIsDormant())
                 .toList();
-        for (int i = 0; i < Math.min(3, dormant.size()); i++) {
+        for (int i = 0; i < Math.min(4, dormant.size()); i++) {
             CategoryScore cs = dormant.get(i);
             int avgInt = (int) Math.round(cs.stat().getAvgLevel());
-            int[] range = new int[]{Math.max(avgInt - 3, 1), avgInt};
+            int[] range = new int[]{Math.max(avgInt - 4, 1), Math.max(avgInt - 1, 1)};
             RecommendationSlot slot = pickProblem(cs.stat(), range, "REVIEW", usedProblems, skippedIds, userTier, includeForeign);
             if (slot != null) {
                 slots.add(slot);
@@ -452,14 +454,50 @@ public class RecommendationService {
             }
         }
 
-        // Growth 1: INTERMEDIATE + ACTIVE category
-        List<CategoryScore> activeIntermediate = scores.stream()
+        // Explore 1
+        RecommendationSlot exploreSlot = pickExploreProblem(tagStats, userTier, usedProblems, usedTags, skippedIds, includeForeign);
+        if (exploreSlot != null) {
+            slots.add(exploreSlot);
+        }
+
+        fillRemainingSlots(slots, scores, userTier, usedProblems, usedTags, skippedIds, 5, includeForeign);
+
+        return slots;
+    }
+
+    // ── Slot Allocation: Returning Mid (2 REVIEW + 2 GROWTH + 1 EXPLORE) ──
+
+    private List<RecommendationSlot> allocateReturningMidSlots(
+            List<CategoryScore> scores, List<UserTagStat> tagStats,
+            int userTier, Set<Integer> hardExclude, Set<Integer> skippedIds, boolean includeForeign) {
+
+        List<RecommendationSlot> slots = new ArrayList<>();
+        Set<String> usedTags = new HashSet<>();
+        Set<Integer> usedProblems = new HashSet<>(hardExclude);
+
+        // Review 2: dormant categories, moderate difficulty [avg-2, avg]
+        List<CategoryScore> dormant = scores.stream()
+                .filter(s -> s.stat().getIsDormant() != null && s.stat().getIsDormant())
+                .toList();
+        for (int i = 0; i < Math.min(2, dormant.size()); i++) {
+            CategoryScore cs = dormant.get(i);
+            int avgInt = (int) Math.round(cs.stat().getAvgLevel());
+            int[] range = new int[]{Math.max(avgInt - 2, 1), avgInt};
+            RecommendationSlot slot = pickProblem(cs.stat(), range, "REVIEW", usedProblems, skippedIds, userTier, includeForeign);
+            if (slot != null) {
+                slots.add(slot);
+                usedTags.add(cs.stat().getTagKey());
+                usedProblems.add(slot.getProblem().getId());
+            }
+        }
+
+        // Growth 2: INTERMEDIATE categories (dormant or active)
+        List<CategoryScore> intermediates = scores.stream()
                 .filter(s -> "INTERMEDIATE".equals(s.stat().getProficiency()))
-                .filter(s -> s.stat().getIsDormant() == null || !s.stat().getIsDormant())
                 .filter(s -> !usedTags.contains(s.stat().getTagKey()))
                 .toList();
-        if (!activeIntermediate.isEmpty()) {
-            CategoryScore cs = activeIntermediate.get(0);
+        for (int i = 0; i < Math.min(2, intermediates.size()); i++) {
+            CategoryScore cs = intermediates.get(i);
             int[] range = computeDifficultyRange(cs.stat(), userTier);
             RecommendationSlot slot = pickProblem(cs.stat(), range, "GROWTH", usedProblems, skippedIds, userTier, includeForeign);
             if (slot != null) {

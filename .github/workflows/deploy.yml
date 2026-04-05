@@ -6,7 +6,12 @@ on:
     paths:
       - 'backend/**'
       - 'docker-compose.prod.yml'
+      - 'Caddyfile'
       - '.github/workflows/deploy.yml'
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
@@ -66,6 +71,17 @@ jobs:
           key: ${{ secrets.GCE_SSH_KEY }}
           script: |
             cd ~/baekjoon-recommender
+            git pull origin main
             docker compose -f docker-compose.prod.yml --env-file .env.prod pull backend
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
             docker image prune -f
+
+      - name: Health check
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.GCE_HOST }}
+          username: ${{ secrets.GCE_USERNAME }}
+          key: ${{ secrets.GCE_SSH_KEY }}
+          script: |
+            sleep 30
+            curl -f http://localhost:8080/actuator/health || exit 1

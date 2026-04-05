@@ -23,6 +23,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AnalysisService {
 
+    private static final int BLOCK_GAP_THRESHOLD = 7;
+
+    private record ActivityBlockResult(int previousGapDays, int activeDaysInBlock, LocalDate blockStartDate) {}
+
     private final UserRepository userRepository;
     private final UserSolvedRepository userSolvedRepository;
     private final ProblemRepository problemRepository;
@@ -67,10 +71,12 @@ public class AnalysisService {
         List<UserSolved> solvedList = userSolvedRepository.findByUserId(userId);
         int totalSolved = solvedList.size();
 
-        // Compute global status
         String globalStatus;
         int gapDays = 0;
         int activeDays90 = 0;
+        int previousGapDays = 0;
+        int activeDaysInBlock = 0;
+        LocalDate blockStartDate = null;
 
         if (totalSolved == 0) {
             globalStatus = "NEWCOMER";
@@ -82,35 +88,25 @@ public class AnalysisService {
                     .collect(Collectors.toList());
 
             LocalDate now = LocalDate.now();
-            LocalDate continuousStart = solvedDates.get(0);
-
-            for (int i = 1; i < solvedDates.size(); i++) {
-                long daysBetween = ChronoUnit.DAYS.between(solvedDates.get(i), solvedDates.get(i - 1));
-                if (daysBetween <= 7) {
-                    continuousStart = solvedDates.get(i);
-                } else {
-                    break;
-                }
-            }
-
-            gapDays = (int) ChronoUnit.DAYS.between(continuousStart, now) > 7
-                    ? (int) ChronoUnit.DAYS.between(continuousStart, now)
-                    : 0;
-
-            long daysSinceLastSolve = ChronoUnit.DAYS.between(solvedDates.get(0), now);
-            if (daysSinceLastSolve > 7) {
-                gapDays = (int) daysSinceLastSolve;
-            }
+            gapDays = (int) ChronoUnit.DAYS.between(solvedDates.get(0), now);
 
             LocalDate ninetyDaysAgo = now.minusDays(90);
             activeDays90 = (int) solvedDates.stream()
                     .filter(d -> !d.isBefore(ninetyDaysAgo))
                     .count();
 
+            ActivityBlockResult block = detectActivityBlock(solvedDates);
+            previousGapDays = block.previousGapDays();
+            activeDaysInBlock = block.activeDaysInBlock();
+            blockStartDate = block.blockStartDate();
+
             if (gapDays >= 30) {
-                if (activeDays90 >= 15) {
+                globalStatus = "RETURNING_EARLY";
+            } else if (previousGapDays >= 30) {
+                int threshold = computeRecoveryThreshold(previousGapDays);
+                if (activeDaysInBlock >= threshold) {
                     globalStatus = "ACTIVE";
-                } else if (activeDays90 >= 4) {
+                } else if (activeDaysInBlock >= (threshold + 1) / 2) {
                     globalStatus = "RETURNING_MID";
                 } else {
                     globalStatus = "RETURNING_EARLY";
@@ -127,18 +123,51 @@ public class AnalysisService {
         analysis.setGlobalStatus(globalStatus);
         analysis.setGapDays(gapDays);
         analysis.setActiveDays90(activeDays90);
+        analysis.setPreviousGapDays(previousGapDays);
+        analysis.setActiveDaysInBlock(activeDaysInBlock);
+        analysis.setReturnedAt(previousGapDays >= 30 && blockStartDate != null
+                ? blockStartDate.atStartOfDay() : null);
         analysis.setTotalSolved(totalSolved);
         analysis.setTier(tier);
         analysis.setRating(rating);
         userAnalysisRepository.save(analysis);
 
         // Per-tag proficiency with enhanced matrix
-        analyzeTagStats(userId, solvedList, gapDays, tier);
+        analyzeTagStats(userId, solvedList, blockStartDate, previousGapDays, tier);
 
         return analysis;
     }
 
-    private void analyzeTagStats(Long userId, List<UserSolved> solvedList, int gapDays, Integer userTier) {
+    private ActivityBlockResult detectActivityBlock(List<LocalDate> solvedDates) {
+        int blockStartIndex = 0;
+        for (int i = 1; i < solvedDates.size(); i++) {
+            long daysBetween = ChronoUnit.DAYS.between(solvedDates.get(i), solvedDates.get(i - 1));
+            if (daysBetween > BLOCK_GAP_THRESHOLD) {
+                break;
+            }
+            blockStartIndex = i;
+        }
+
+        LocalDate blockStartDate = solvedDates.get(blockStartIndex);
+        int activeDaysInBlock = blockStartIndex + 1;
+
+        int previousGapDays = 0;
+        if (blockStartIndex + 1 < solvedDates.size()) {
+            previousGapDays = (int) ChronoUnit.DAYS.between(
+                    solvedDates.get(blockStartIndex + 1), blockStartDate);
+        }
+
+        return new ActivityBlockResult(previousGapDays, activeDaysInBlock, blockStartDate);
+    }
+
+    private int computeRecoveryThreshold(int previousGapDays) {
+        if (previousGapDays >= 180) return 21;
+        if (previousGapDays >= 90) return 14;
+        return 7;
+    }
+
+    private void analyzeTagStats(Long userId, List<UserSolved> solvedList,
+                                  LocalDate blockStartDate, int previousGapDays, Integer userTier) {
         userTagStatRepository.deleteByUserId(userId);
 
         if (solvedList.isEmpty()) return;
@@ -168,7 +197,6 @@ public class AnalysisService {
             }
         }
 
-        LocalDate gapStart = LocalDate.now().minusDays(gapDays);
         int effectiveTier = userTier != null ? userTier : 1;
         List<UserTagStat> statsToSave = new ArrayList<>();
 
@@ -205,8 +233,10 @@ public class AnalysisService {
                     .max(Comparator.naturalOrder())
                     .orElse(null);
 
-            boolean isDormant = lastSolvedAt != null && gapDays > 0
-                    && lastSolvedAt.toLocalDate().isBefore(gapStart);
+            boolean isDormant = previousGapDays >= 30
+                    && blockStartDate != null
+                    && lastSolvedAt != null
+                    && lastSolvedAt.toLocalDate().isBefore(blockStartDate);
 
             statsToSave.add(UserTagStat.builder()
                     .userId(userId)
