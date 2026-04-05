@@ -28,3 +28,7 @@ export function updateSettings(settings: { theme?: string; includeForeign?: bool
 export function deleteAccount(password: string) {
   return client.delete('/api/users/me', { data: { password } })
 }
+
+export function getBackendVersion() {
+  return client.get<{ version: string }>('/api/version')
+}

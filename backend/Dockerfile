@@ -6,6 +6,7 @@ RUN gradle build -x test --no-daemon
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 COPY --from=build /app/build/libs/*.jar app.jar
 USER appuser

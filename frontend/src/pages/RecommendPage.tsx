@@ -8,6 +8,7 @@ import {
   RecommendationSlot,
 } from '../api/recommend'
 import UserMenu from '../components/UserMenu'
+import Footer from '../components/Footer'
 import styles from './RecommendPage.module.css'
 
 const SLOT_LABELS: Record<string, string> = {
@@ -167,6 +168,7 @@ export default function RecommendPage() {
           </>
         ) : null}
       </main>
+      <Footer />
     </div>
   )
 }

@@ -10,6 +10,7 @@ import {
   RecommendationSlot,
 } from '../api/recommend'
 import UserMenu from '../components/UserMenu'
+import Footer from '../components/Footer'
 import styles from './DashboardPage.module.css'
 
 // Tier helpers
@@ -393,6 +394,7 @@ export default function DashboardPage() {
           </>
         )}
       </main>
+      <Footer />
     </div>
   )
 }

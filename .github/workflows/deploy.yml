@@ -83,8 +83,9 @@ jobs:
           username: ${{ secrets.GCE_USERNAME }}
           key: ${{ secrets.GCE_SSH_KEY }}
           script: |
+            CONTAINER=$(docker compose -f docker-compose.prod.yml ps -q backend)
             for i in $(seq 1 10); do
               sleep 15
-              curl -f http://localhost:8080/actuator/health && exit 0
+              docker exec "$CONTAINER" curl -sf http://localhost:8080/actuator/health && exit 0
             done
             exit 1

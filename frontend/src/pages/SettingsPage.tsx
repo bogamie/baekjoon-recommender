@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { version as feVersion } from '../../package.json'
 import { useAuth } from '../contexts/AuthContext'
-import { updateSolvedac, syncData, updateSettings, deleteAccount } from '../api/user'
+import { updateSolvedac, syncData, updateSettings, deleteAccount, getBackendVersion } from '../api/user'
+import Footer from '../components/Footer'
 import UserMenu from '../components/UserMenu'
 import styles from './SettingsPage.module.css'
 
@@ -18,6 +20,14 @@ export default function SettingsPage() {
 
   const [themeSaving, setThemeSaving] = useState(false)
   const [foreignSaving, setForeignSaving] = useState(false)
+
+  const [beVersion, setBeVersion] = useState('')
+
+  useEffect(() => {
+    getBackendVersion()
+      .then(res => setBeVersion(res.data.version))
+      .catch(() => setBeVersion('-'))
+  }, [])
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deletePassword, setDeletePassword] = useState('')
@@ -229,7 +239,12 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
+
+        <div className={styles.versionInfo}>
+          Frontend v{feVersion} | Backend v{beVersion || '...'}
+        </div>
       </main>
+      <Footer />
     </div>
   )
 }

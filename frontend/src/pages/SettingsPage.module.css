@@ -1,5 +1,4 @@
 .page {
-  min-height: 100vh;
   background-color: var(--color-bg);
 }
 
@@ -35,7 +34,7 @@
 .content {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 48px 24px 0;
 }
 
 .title {
@@ -221,6 +220,7 @@
 /* Danger section */
 .dangerSection {
   padding-top: 32px;
+  padding-bottom: 32px;
 }
 
 .dangerBtn {
@@ -302,4 +302,11 @@
 .confirmDeleteBtn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.versionInfo {
+  text-align: center;
+  padding: 8px 0 0;
+  font-size: 12px;
+  color: var(--color-muted);
 }

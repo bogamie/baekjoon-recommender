@@ -1,0 +1,43 @@
+name: Frontend Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yml'
+
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install and build
+        working-directory: frontend
+        env:
+          VITE_API_URL: https://baekjoonrec.duckdns.org
+        run: |
+          npm ci
+          npm run build
+          cp dist/index.html dist/404.html
+
+      - name: Deploy to GitHub Pages
+        run: |
+          cd frontend/dist
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "deploy: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          git push --force https://x-access-token:${{ secrets.FRONTEND_DEPLOY_TOKEN }}@github.com/baekjoon-recommender/baekjoon-recommender.github.io.git HEAD:main

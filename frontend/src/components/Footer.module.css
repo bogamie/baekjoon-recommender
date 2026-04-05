@@ -1,0 +1,27 @@
+.wrapper {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+.content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.footer {
+  text-align: center;
+  padding: 4px 0 24px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.footer a {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footer a:hover {
+  color: var(--color-text);
+}
