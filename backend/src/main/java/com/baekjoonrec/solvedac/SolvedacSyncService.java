@@ -80,6 +80,14 @@ public class SolvedacSyncService {
         String handle = user.getSolvedacHandle();
         log.info("Starting sync for user {} with handle {}", userId, handle);
 
+        // Detect corrupted timestamps (all same value) and auto-trigger full resync
+        if (userSolvedRepository.existsByUserId(userId) && hasCorruptedTimestamps(userId)) {
+            log.info("Detected corrupted timestamps for user {}, triggering full resync", userId);
+            userSolvedRepository.deleteByUserId(userId);
+            user.setLastSyncedAt(null);
+            userRepository.save(user);
+        }
+
         // Phase 1: Fetch data from solved.ac API (no transaction — no DB connection held)
         List<SolvedacProblemItem> fetchedItems = new ArrayList<>();
         int page = 1;
@@ -100,7 +108,13 @@ public class SolvedacSyncService {
         try {
             history = solvedacClient.getUserHistory(handle);
         } catch (Exception e) {
-            log.warn("Failed to fetch history for {}, falling back to current time", handle, e);
+            log.warn("Failed to fetch history for {}", handle, e);
+            // First sync requires history for accurate timestamps; without it, analysis is meaningless
+            if (!userSolvedRepository.existsByUserId(userId)) {
+                throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "HISTORY_UNAVAILABLE",
+                        "solved.ac 히스토리를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.");
+            }
+            // Incremental sync: few recent problems, now() is acceptable
         }
 
         // Phase 2: Save to DB in a transaction (via separate bean for proxy)
@@ -112,5 +126,16 @@ public class SolvedacSyncService {
 
         log.info("Sync complete for user {}: {} problems. Running analysis...", userId, fetchedItems.size());
         analysisService.analyzeUser(userId);
+    }
+
+    /**
+     * Detects if a user's solved timestamps are corrupted (all identical),
+     * which happens when history fetch failed during first sync.
+     */
+    private boolean hasCorruptedTimestamps(Long userId) {
+        long distinctCount = userSolvedRepository.countDistinctSolvedAtByUserId(userId);
+        long totalCount = userSolvedRepository.countByUserId(userId);
+        // If 10+ problems all share the same timestamp, it's almost certainly corrupted
+        return totalCount >= 10 && distinctCount == 1;
     }
 }

@@ -9,6 +9,11 @@ public interface UserSolvedRepository extends JpaRepository<UserSolved, UserSolv
     long countByUserId(Long userId);
     void deleteByUserId(Long userId);
 
+    boolean existsByUserId(Long userId);
+
     @org.springframework.data.jpa.repository.Query("SELECT us.problemId FROM UserSolved us WHERE us.userId = :userId")
     List<Integer> findProblemIdsByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT us.solvedAt) FROM UserSolved us WHERE us.userId = :userId")
+    long countDistinctSolvedAtByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
 }
