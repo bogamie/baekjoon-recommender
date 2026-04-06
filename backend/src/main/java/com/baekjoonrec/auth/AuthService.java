@@ -136,7 +136,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AccessTokenResponse refresh(RefreshRequest request) {
+    public TokenResponse refresh(RefreshRequest request) {
         if (!jwtService.isTokenValid(request.getRefreshToken())) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN", "Invalid or expired refresh token");
         }
@@ -152,8 +152,9 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "User not found"));
 
-        String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
-        return new AccessTokenResponse(accessToken);
+        refreshTokenRepository.delete(stored);
+
+        return generateTokens(user);
     }
 
     @Transactional
@@ -169,7 +170,7 @@ public class AuthService {
         RefreshToken tokenEntity = RefreshToken.builder()
                 .userId(user.getId())
                 .token(refreshToken)
-                .expiresAt(LocalDateTime.now().plusDays(7))
+                .expiresAt(LocalDateTime.now().plusDays(30))
                 .build();
         refreshTokenRepository.save(tokenEntity);
 

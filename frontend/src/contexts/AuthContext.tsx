@@ -31,9 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     getMe()
       .then((res) => setUser(res.data))
-      .catch(() => {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+      .catch((err) => {
+        if (err.response?.status === 401) {
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+        }
       })
       .finally(() => setReady(true))
   }, [])
