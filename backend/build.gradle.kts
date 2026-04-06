@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.baekjoonrec"
-version = "0.5.3"
+version = "0.6.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

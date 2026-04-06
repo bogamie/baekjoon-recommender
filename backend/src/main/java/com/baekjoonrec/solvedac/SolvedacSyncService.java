@@ -70,14 +70,32 @@ public class SolvedacSyncService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "NO_HANDLE", "solved.ac handle not set");
         }
 
-        // Skip if synced within 24 hours
+        String handle = user.getSolvedacHandle();
+
+        // Minimum cooldown: 5 minutes to prevent abuse
         LocalDateTime lastSync = user.getLastSyncedAt();
-        if (lastSync != null && lastSync.isAfter(LocalDateTime.now().minusHours(24))) {
-            log.info("Skipping sync for user {}, last sync was recent", userId);
+        if (lastSync != null && lastSync.isAfter(LocalDateTime.now().minusMinutes(5))) {
+            log.info("Skipping sync for user {}, last sync was less than 5 minutes ago", userId);
             return;
         }
 
-        String handle = user.getSolvedacHandle();
+        // Quick check: compare solved count on solved.ac vs DB
+        // If counts match, no new problems were solved — skip full sync
+        if (lastSync != null) {
+            try {
+                SolvedacUserResponse userInfo = solvedacClient.getUser(handle);
+                long dbCount = userSolvedRepository.countByUserId(userId);
+                if (userInfo.getSolvedCount() == dbCount) {
+                    log.info("Skipping sync for user {}, solved count unchanged ({})", userId, dbCount);
+                    user.setLastSyncedAt(LocalDateTime.now());
+                    userRepository.save(user);
+                    return;
+                }
+                log.info("Solved count changed for user {}: DB={}, solved.ac={}", userId, dbCount, userInfo.getSolvedCount());
+            } catch (Exception e) {
+                log.warn("Failed to check solved count for user {}, proceeding with full sync", userId, e);
+            }
+        }
         log.info("Starting sync for user {} with handle {}", userId, handle);
 
         // Detect corrupted timestamps (all same value) and auto-trigger full resync
